@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title> Tic Tac Toe</title>
+    <style>
+      .js-first-row{
+      }
+      .js-second-row{
+      }
+      .js-third-row{
+
+      }
+
+      .js-grid{
+        background-color: wheat;
+        height: 150px;
+        width: 150px;
+      }
+      .move-icon{
+        height: 150px;
+        width: 150px
+      }
+      .js-result{
+        font-family: Arial;
+        font-size: 50px;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  
+
+
+<body>
+  <div class = "js-first-row"></div>
+  <div class = "js-second-row"></div>
+  <div class = "js-third-row"></div>
+  <div class = "js-result"></div>
+  <div class = "js-timer"></div>
+  <script>
+    let gridBox = [];
+    let clickBox = [];
+    let player = [];
+    let comp  = [];
+    let counter = 0;
+    let tr = true;
+    let res = "";
+
+    function createGame(){
+      for(i = 0 ; i<9; i++){
+        let canv = document.createElement("canvas");
+        let cont = canv.getContext("2d");
+        canv.width= "150";
+        canv.height = "150";
+        cont.lineWidth=10;
+        cont.strokeRect(0,0,150,150);
+        canv.setAttribute('onclick', 'playTurn(this, ' + i + ')');
+        canv.setAttribute('class','js-grid');
+        clickBox[i]=canv;
+        gridBox.push(false);       
+        if(i<=2){
+          document.querySelector('.js-first-row').appendChild(clickBox[i]);
+        } 
+        else if(i<=5){
+          document.querySelector('.js-second-row').appendChild(clickBox[i]);
+        } 
+          else if(i<=8){
+          document.querySelector('.js-third-row').appendChild(clickBox[i]);
+        }
+      }
+    }
+
+    createGame();
+  
+    function playTurn(p1,p2){  
+      if(!gridBox[p2]&&tr){
+        document.querySelector('.js-result').innerHTML='Your Turn'; 
+        animate(p1);
+        gridBox[p2]=(true);
+        player[p2]=(true);
+        counter++;
+        tr = false;
+        if(!check(player)){
+          setTimeout(function() {document.querySelector('.js-result').innerHTML='Computers Turn';compTurn();}, 1000); 
+        }
+        else{
+         endOfGame();
+        }  
+      }
+    }
+    function compTurn() {
+      if(counter===9){
+        document.querySelector('.js-result').innerHTML='Its a tie.';
+        endOfGame();
+        return; 
+      }
+      let turn =getTurn(); 
+      animate1(clickBox[turn]);
+      gridBox[turn] = true;
+      comp[turn] = true;
+      counter++;
+      if(!check(comp)){
+        tr = true;
+        setTimeout(function() {document.querySelector('.js-result').innerHTML='Your Turn';}, 1200);      
+      }
+      else{
+        endOfGame();
+      }    
+    }
+    
+    function endOfGame(){
+      let button = document.createElement('button');
+      button.textContent = "Reset Game";
+      button.setAttribute('onclick', 'resetGame()');
+      document.querySelector('.js-result').appendChild(button);  
+    }  
+    function check(p1){
+      if(p1===player)
+        res = 'You Won';
+      else
+        res = 'You lost';
+        if(p1[0]&&p1[1]&&p1[2]||p1[0]&&p1[3]&&p1[6]||p1[0]&&p1[4]&&p1[8]||p1[6]&&p1[7]&&p1[8]||p1[2]&&p1[5]&&p1[8]||p1[1]&&p1[4]&&p1[7]||p1[3]&&p1[4]&&p1[5]||p1[2]&&p1[4]&&p1[6]){
+          document.querySelector('.js-result').innerHTML=res; 
+        return true;
+      }
+    }
+    let x = 1;
+    function strokeX(p1){
+      const inc =3;
+      let ct = p1.getContext("2d");
+      resetRect(ct);
+      ct.strokeStyle = "blue";
+      ct.lineWidth=10;
+      ct.beginPath();
+      ct.moveTo(10,10);
+      ct.lineTo(0+x,0+x);
+      ct.stroke();
+      ct.beginPath();
+      ct.moveTo(140,10);
+      ct.lineTo(150-x,0+x);
+      ct.stroke();
+      x+=inc;
+      if (x < 140) { 
+    requestAnimationFrame(() => strokeX(p1)); 
+  } else {
+    x = 1; 
+  }
+}
+ 
+function animate(p1){
+  requestAnimationFrame(() => strokeX(p1)); 
+}
+    function strokeO(p1){
+      let inc = 1;
+      let ct = p1.getContext("2d");
+      resetRect(ct)
+      ct.strokeStyle = "red";
+      ct.beginPath();
+      ct.arc(75, 75, x, 0, 2 * Math.PI);
+      ct.stroke();
+      x+=inc;
+      if (x < 65) { // Adjust this condition as needed for smoother animation
+    requestAnimationFrame(() => strokeO(p1)); // Request the next animation frame
+  } else {
+    x = 1; // Reset x to its initial value
+  }  
+    }
+    function animate1(p1){
+  requestAnimationFrame(() => strokeO(p1)); // Start the animation loop
+}
+function resetRect(p1){
+   p1.strokeStyle="black";
+    p1.clearRect(0,0,150,150);
+    p1.strokeRect(0,0,150,150)
+}
+
+
+
+function resetGame(){
+  document.querySelector('.js-first-row').innerHTML = '';
+  document.querySelector('.js-second-row').innerHTML = '';
+  document.querySelector('.js-third-row').innerHTML = '';
+  document.querySelector('.js-result').innerHTML = '';
+  tr=true;
+  for(i = 0 ; i < 9;i++){
+    player[i] = false;
+    comp[i] = false;
+    gridBox[i]=false;
+  }
+  createGame();
+            setTimeout(function() {document.querySelector('.js-result').innerHTML='Your Turn';}, 500);  
+}
+function getTurn(){
+  if(player[0]&&player[1]&&!player[2]&&!comp[2])
+    turn = 2;
+  else if(player[0]&&player[2]&&!player[1]&&!comp[1])
+    turn = 1;
+  else if(player[1]&&player[2]&&!player[0]&&!comp[0])
+    turn = 0;
+  else if(player[0]&&player[4]&&!player[8]&&!comp[8])
+    turn = 8;
+  else if(player[0]&&player[8]&&!player[4]&&!comp[4])
+    turn = 4;
+  else if(player[8]&&player[4]&&!player[0]&&!comp[0])
+    turn = 0;
+  else if(player[0]&&player[3]&&!player[6]&&!comp[6])
+    turn = 6;
+  else if(player[1]&&player[4]&&!player[7]&&!comp[7])
+    turn = 7;
+  else if(player[2]&&player[5]&&!player[8]&&!comp[8])
+    turn = 8;
+  else if(player[2]&&player[4]&&!player[7]&&!comp[7])
+    turn = 7;
+  else if(player[2]&&player[7]&&!player[4]&&!comp[4])
+    turn = 4;
+  else if(player[4]&&player[7]&&!player[2]&&!comp[2])
+    turn = 2;
+  else if(player[3]&&player[4]&&!player[5]&&!comp[5])
+    turn = 5;
+  else if(player[3]&&player[5]&&!player[4]&&!comp[4])
+    turn = 4;
+  else if(player[4]&&player[5]&&!player[3]&&!comp[3])
+    turn = 3;
+  else if(player[6]&&player[7]&&!player[8]&&!comp[8])
+    turn = 8;
+  else if(player[6]&&player[4]&&!player[2]&&!comp[2])
+    turn = 2;
+  else if(player[2]&&player[4]&&!player[6]&&!comp[6])
+    turn = 6;
+  else{ 
+    turn = Math.floor(Math.random() * 9);
+  while (gridBox[turn]) 
+    turn = Math.floor(Math.random() * 9); 
+  }      
+  return turn;     
+}
+
+  </script>
+
+</body>
+</html>
